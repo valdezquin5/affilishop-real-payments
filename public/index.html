@@ -1,1 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AffiliShop — Shop, Share, Earn</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="navbar">
+  <a class="logo" href="#home" aria-label="AffiliShop Home">
+    <span class="logo-icon">🛍️</span>
+    <span>Affili<span>Shop</span></span>
+  </a>
+  <nav class="nav-links">
+    <a href="#home">Home</a>
+    <a href="#shop">Shop</a>
+    <a href="#myShops" data-protected>My AffiliShops</a>
+    <a href="#dashboard" data-protected>Dashboard</a>
+    <a href="#how">How It Works</a>
+  </nav>
+  <div class="search-box">
+    <span>🔎</span>
+    <input id="searchInput" type="search" placeholder="Search products..." aria-label="Search products">
+  </div>
+  <div class="account-area">
+    <span id="userDisplay" class="user-display"></span>
+    <button id="loginButton" class="login-btn" type="button">Login</button>
+    <button id="signupButton" class="signup-btn" type="button">Sign Up</button>
+    <button id="logoutButton" class="logout-btn hidden" type="button">Logout</button>
+    <button id="darkButton" class="dark-btn" type="button" aria-label="Toggle dark mode">☾</button>
+  </div>
+</header>
+<main>
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="hero-small">TURN YOUR PASSION INTO INCOME</div>
+      <h1>Shop. Share. <span>Earn.</span></h1>
+      <p>Discover products, share your affiliate links and track your commissions in one place.</p>
+      <div class="hero-buttons">
+        <button class="primary-btn" id="startShoppingBtn" type="button">Start Shopping →</button>
+        <button class="secondary-btn" id="howButton" type="button">▶ How It Works</button>
+      </div>
+      <div class="hero-features">
+        <div class="feature"><div class="feature-icon">🎁</div><div><b>Wide Selection</b><small>Manage many products</small></div></div>
+        <div class="feature"><div class="feature-icon">💰</div><div><b>Earn Commission</b><small>Track real earnings</small></div></div>
+        <div class="feature"><div class="feature-icon">🔗</div><div><b>Share Links</b><small>Copy and open links</small></div></div>
+      </div>
+    </div>
+  </section>
+  <section class="brands">
+    <div class="brands-title">AFFILIATE-STYLE PARTNERS</div>
+    <div class="brand-list">
+      <div>Amazon</div><div>Shopee</div><div>Lazada</div><div>AliExpress</div>
+      <div>eBay</div><div>SHEIN</div><div>NIKE</div><div>adidas</div>
+    </div>
+  </section>
+  <section id="shopLocked" class="shop-locked public-shop-intro">
+    <div class="lock-card">
+      <div class="lock-icon">🛍️</div>
+      <h2>Visit the Shop</h2>
+      <p>Browse products and open affiliate product links without signing in. Customers can shop, but cannot add, edit, or create an AffiliShop.</p>
+      <div class="lock-buttons">
+        <button class="primary-btn" id="publicShopBtn" type="button">Visit Shop →</button>
+        <button class="secondary-dark-btn" id="publicSignInBtn" type="button">Sign In to Create a Shop</button>
+      </div>
+    </div>
+  </section>
+  <section class="products-section" id="shop">
+    <div class="section-header">
+      <div>
+        <h2>Featured Products</h2>
+        <p id="shopSubtitle">Browse products and choose a product to visit its affiliate link.</p>
+      </div>
+      <div class="section-actions" id="shopOwnerActions">
+        <button class="secondary-dark-btn" id="createShopBtn" type="button">＋ Create AffiliShop</button>
+        <button class="primary-btn" id="addProductBtn" type="button">＋ Add Product</button>
+      </div>
+    </div>
+    <div class="categories" id="categories">
+      <button class="category-btn active" data-category="all" type="button">All</button>
+      <button class="category-btn" data-category="electronics" type="button">Electronics</button>
+      <button class="category-btn" data-category="fashion" type="button">Fashion</button>
+      <button class="category-btn" data-category="home" type="button">Home</button>
+      <button class="category-btn" data-category="beauty" type="button">Beauty</button>
+    </div>
+    <div class="product-grid" id="productGrid"></div>
+  </section>
+  <section class="public-shops" id="publicShops">
+    <div class="section-header">
+      <div>
+        <h2>AffiliShop Creators</h2>
+        <p>Visit a creator's shop and click products. No sign-in required.</p>
+      </div>
+    </div>
+    <div class="public-shops-grid" id="publicShopsGrid"></div>
+  </section>
+  <section class="my-shops hidden" id="myShops">
+    <div class="section-header">
+      <div>
+        <h2>My AffiliShops</h2>
+        <p>Create your own affiliate shop. Visitors can view and click your product links.</p>
+      </div>
+      <button class="primary-btn" id="createShopBtn2" type="button">＋ Create AffiliShop</button>
+    </div>
+    <div class="shop-plan-banner">
+      <div>
+        <strong>Free plan: 2 products per AffiliShop</strong>
+        <p>Upgrade to Monthly, Yearly, or Lifetime for more products.</p>
+      </div>
+      <button class="secondary-dark-btn" id="openPlansBtn" type="button">View Plans</button>
+    </div>
+    <div class="created-shops" id="createdShops"></div>
+  </section>
+  <section class="dashboard hidden" id="dashboard">
+    <div class="dashboard-header">
+      <div>
+        <h2>Affiliate Dashboard</h2>
+        <p>Your account activity and earnings.</p>
+      </div>
+      <button class="secondary-dark-btn" id="resetStatsBtn" type="button">Reset Demo Stats</button>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-title">Link Clicks</div><div class="stat-number" id="clicks">0</div></div>
+      <div class="stat"><div class="stat-title">Products Shared</div><div class="stat-number" id="shared">0</div></div>
+      <div class="stat"><div class="stat-title">Commission Earned</div><div class="stat-number" id="commission">₱0.00</div></div>
+      <div class="stat"><div class="stat-title">Balance</div><div class="stat-number" id="balance">₱0.00</div></div>
+    </div>
+    <div class="account-card">
+      <h3>My Account</h3>
+      <p><b>Name:</b> <span id="accountName">—</span></p>
+      <p><b>Email:</b> <span id="accountEmail">—</span></p>
+      <p><b>Phone:</b> <span id="accountPhone">—</span></p>
+    </div>
+  </section>
+  <section class="how" id="how">
+    <h2>How AffiliShop Works</h2>
+    <div class="how-grid">
+      <div class="how-card"><div class="how-number">1</div><h3>Create Account</h3><p>Sign up to start your own shop.</p></div>
+      <div class="how-card"><div class="how-number">2</div><h3>Add Products</h3><p>Add products with your affiliate links.</p></div>
+      <div class="how-card"><div class="how-number">3</div><h3>Share & Earn</h3><p>Share your shop link and track commissions.</p></div>
+    </div>
+  </section>
+  <section class="app-cta">
+    <div><h2>Earn Anytime,<br>Anywhere.</h2><p>Fully responsive — works on mobile and desktop.</p></div>
+    <button class="app-btn" id="mobileButton" type="button">📱 Mobile Ready</button>
+  </section>
+</main>
+<footer>
+  <div class="footer-grid">
+    <div><h3>🛍️ AffiliShop</h3><p>Affiliate shop platform — build your income.</p></div>
+    <div><h3>Platform</h3><a href="#home">Home</a><a href="#shop">Shop</a><a href="#dashboard" data-protected>Dashboard</a></div>
+    <div><h3>Company</h3><a href="#how">About</a><a href="#how">How It Works</a><a href="#home">Contact</a></div>
+    <div><h3>Support</h3><a href="#how">Help</a><a href="#home">Terms</a><a href="#home">Privacy</a></div>
+  </div>
+  <div class="copyright">© 2026 AffiliShop. All rights reserved.</div>
+</footer>
 
+<!-- LOGIN -->
+<div class="modal" id="loginModal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+  <div class="modal-box">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2 id="loginTitle">Welcome Back</h2>
+    <p class="modal-description">Login with your email or phone number.</p>
+    <label for="loginIdentity">Email or phone</label>
+    <input id="loginIdentity" type="text" autocomplete="username" placeholder="Email or phone number">
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Password">
+    <button class="modal-submit" id="loginSubmit" type="button">Login</button>
+    <button class="forgot-button" id="forgotButton" type="button">Forgot Password?</button>
+    <p class="modal-bottom">Don't have an account? <b id="toSignup">Sign Up</b></p>
+  </div>
+</div>
+
+<!-- SIGN UP -->
+<div class="modal" id="signupModal" role="dialog" aria-modal="true" aria-labelledby="signupTitle">
+  <div class="modal-box">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2 id="signupTitle">Create Your Account</h2>
+    <p class="modal-description">Join and start your affiliate journey.</p>
+    <label for="signupName">Full name</label>
+    <input id="signupName" type="text" autocomplete="name" placeholder="Full name">
+    <label for="signupEmail">Email address</label>
+    <input id="signupEmail" type="email" autocomplete="email" placeholder="Email address">
+    <label for="signupPhone">Phone number</label>
+    <input id="signupPhone" type="tel" autocomplete="tel" placeholder="Phone number">
+    <label for="signupPassword">Password</label>
+    <input id="signupPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters">
+    <label for="signupConfirm">Confirm password</label>
+    <input id="signupConfirm" type="password" autocomplete="new-password" placeholder="Confirm password">
+    <button class="modal-submit" id="signupSubmit" type="button">Create Account</button>
+    <p class="modal-bottom">Already have an account? <b id="toLogin">Login</b></p>
+  </div>
+</div>
+
+<!-- FORGOT PASSWORD -->
+<div class="modal" id="forgotModal" role="dialog" aria-modal="true" aria-labelledby="forgotTitle">
+  <div class="modal-box">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2 id="forgotTitle">Reset Password</h2>
+    <p class="modal-description">Enter your email or phone to find your account.</p>
+    <div id="resetStep1">
+      <label for="forgotIdentity">Email or phone</label>
+      <input id="forgotIdentity" type="text" placeholder="Email or phone number">
+      <button class="modal-submit" id="verifyResetBtn" type="button">Find Account</button>
+    </div>
+    <div id="resetStep2" class="hidden">
+      <div class="success-note">✅ Account found. Enter your new password.</div>
+      <label for="newPassword">New password</label>
+      <input id="newPassword" type="password" autocomplete="new-password" placeholder="At least 6 characters">
+      <label for="confirmNewPassword">Confirm new password</label>
+      <input id="confirmNewPassword" type="password" autocomplete="new-password" placeholder="Confirm new password">
+      <button class="modal-submit" id="resetPasswordBtn" type="button">Reset Password</button>
+    </div>
+    <p class="modal-bottom">Remember your password? <b id="forgotToLogin">Login</b></p>
+  </div>
+</div>
+
+<!-- CREATE AFFILISHOP -->
+<div class="modal" id="shopModal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2>Create Your AffiliShop</h2>
+    <p class="modal-description">Free plan: 2 products. Upgrade anytime.</p>
+    <label for="shopName">Shop name</label>
+    <input id="shopName" type="text" placeholder="Example: Quin's Tech Picks">
+    <label for="shopDescription">Description</label>
+    <input id="shopDescription" type="text" placeholder="My favorite products and deals">
+    <label for="shopSlug">Shop link name</label>
+    <input id="shopSlug" type="text" placeholder="quin-tech-picks">
+    <button class="modal-submit" id="saveShopBtn" type="button">Create AffiliShop</button>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION PLANS -->
+<div class="modal" id="plansModal" role="dialog" aria-modal="true">
+  <div class="modal-box plans-modal">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2>Choose Your Plan</h2>
+    <p class="modal-description">Payment processed securely via PayMongo. Plan activates after confirmation.</p>
+    <div class="plans-grid">
+      <div class="plan-card">
+        <span class="plan-label">FREE</span>
+        <h3>₱0</h3>
+        <p>2 products per shop</p>
+        <button class="plan-btn" data-plan="free" type="button">Use Free</button>
+      </div>
+      <div class="plan-card featured">
+        <span class="plan-label">MONTHLY</span>
+        <h3>FREE BETA<span>/mo</span></h3>
+        <p>Up to 20 products per shop</p>
+        <button type="button" class="plan-btn" id="monthlyPlanBtn">Choose Monthly</button>
+      </div>
+      <div class="plan-card">
+        <span class="plan-label">YEARLY</span>
+        <h3>FREE BETA<span>/yr</span></h3>
+        <p>Up to 100 products per shop</p>
+        <button type="button" class="plan-btn" id="yearlyPlanBtn">Choose Yearly</button>
+      </div>
+      <div class="plan-card">
+        <span class="plan-label">LIFETIME</span>
+        <h3>FREE BETA</h3>
+        <p>Unlimited products — forever</p>
+        <button type="button" class="plan-btn" id="lifetimePlanBtn">Choose Lifetime</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PUBLIC SHOP -->
+<div class="modal" id="publicShopModal" role="dialog" aria-modal="true">
+  <div class="modal-box public-shop-modal">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2 id="publicShopTitle">AffiliShop</h2>
+    <p class="modal-description" id="publicShopDescription"></p>
+    <div class="public-shop-products" id="publicShopProducts"></div>
+  </div>
+</div>
+
+<!-- PUBLIC PRODUCT DETAILS -->
+<div class="modal" id="publicProductModal" role="dialog" aria-modal="true" aria-labelledby="publicProductTitle">
+  <div class="modal-box public-product-detail-modal">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <div class="public-product-detail">
+      <img id="publicProductImage" src="" alt="Product">
+      <div class="public-product-detail-info">
+        <span class="badge" id="publicProductBadge">Featured</span>
+        <h2 id="publicProductTitle">Product</h2>
+        <div class="public-detail-price" id="publicProductPrice">₱0.00</div>
+        <div class="commission" id="publicProductCommission" style="display:none">🟢 Earn ₱0.00</div>
+        <p id="publicProductCategory"></p>
+        <p class="customer-detail-note">👤 Customer view — click the link to visit the seller's affiliate page.</p>
+        <a id="publicProductLink" class="public-product-link primary-product-link" href="#" target="_blank" rel="noopener noreferrer">Visit Product →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT PRODUCT -->
+<div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="productModalTitle">
+  <div class="modal-box product-modal">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <h2 id="productModalTitle">Add Product</h2>
+    <p class="modal-description">Add your product details and affiliate link.</p>
+    <input id="productId" type="hidden">
+    <label for="productName">Product name *</label>
+    <input id="productName" name="name" type="text" placeholder="Example: Wireless Headset" required>
+    <label for="productCategory">Category</label>
+    <select id="productCategory" name="category">
+      <option value="electronics">Electronics</option>
+      <option value="fashion">Fashion</option>
+      <option value="home">Home</option>
+      <option value="beauty">Beauty</option>
+    </select>
+    <div class="two-col">
+      <div>
+        <label for="productPrice">Price *</label>
+        <input id="productPrice" name="price" type="number" min="0" step="0.01" placeholder="59.99" required>
+      </div>
+      <div>
+        <label for="productOldPrice">Original Price</label>
+        <input id="productOldPrice" name="oldPrice" type="number" min="0" step="0.01" placeholder="89.99">
+      </div>
+    </div>
+    <label for="productCommission">Commission (₱) *</label>
+    <input id="productCommission" name="commission" type="number" min="0" step="0.01" placeholder="15.00" required>
+    <label for="productBadge">Badge / Label</label>
+    <input id="productBadge" name="badge" type="text" placeholder="Best Seller">
+    <label for="productImage">Product Image</label>
+    <input id="productImage" name="image" type="file" accept="image/png,image/jpeg,image/webp">
+    <small style="color:#777">Or use image URL instead:</small>
+    <input id="productImageUrl" name="imageUrl" type="url" placeholder="https://example.com/product.jpg">
+    <label for="productAffiliate">Affiliate Link *</label>
+    <input id="productAffiliate" name="affiliateUrl" type="url" placeholder="https://example.com/affiliate-link" required>
+    <button class="modal-submit" id="saveProductBtn" type="button">Save Product</button>
+  </div>
+</div>
+
+<!-- PAYMENT SUCCESS PAGE -->
+<div class="modal" id="paymentSuccessModal" role="dialog" aria-modal="true">
+  <div class="modal-box">
+    <button class="close" data-close-modal aria-label="Close">×</button>
+    <div style="text-align:center;padding:20px">
+      <div style="font-size:48px">✅</div>
+      <h2>Payment Successful!</h2>
+      <p>Thank you for upgrading. Your plan will be activated shortly.</p>
+      <button class="modal-submit" data-close-modal type="button">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" aria-live="polite"></div>
+
+<!-- Iisang script lang -->
+<script src="script.js"></script>
+</body>
+</html>

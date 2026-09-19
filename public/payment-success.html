@@ -1,1 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
 
+    <title>Payment Successful</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="payment-success">
+
+    <h1>🎉 Payment Successful!</h1>
+
+    <p>Your payment has been received.</p>
+
+    <p>
+        Your AffiliShop plan will be activated
+        after payment confirmation.
+    </p>
+
+    <button type="button" onclick="returnToShop()">
+    Go to My AffiliShop
+    </button>
+
+</div>
+
+<script>
+async function returnToShop() {
+    // Huwag burahin ang login/session
+    window.location.href = "/";
+}
+</script>
+</body>
+</html>
