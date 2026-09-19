@@ -100,54 +100,160 @@ const saveEverything = () => {
 };
 
 // --- FUNCTIONS DECLARED FIRST ---
+
 async function restoreServerSession() {
-  const token = localStorage.getItem("affiliShopAuthToken");
+  const token =
+    authToken ||
+    localStorage.getItem(
+      "affiliShopAuthToken"
+    );
+
   if (!token) {
-    const savedUser = read(KEY.current, null);
-    if (savedUser) { currentUser = savedUser; currentPlan = localStorage.getItem(KEY.plan) || "free"; }
-    else { currentUser = null; currentPlan = "free"; }
+    currentUser = null;
+    authToken = "";
+    currentPlan = "free";
     return;
   }
+
   try {
-    const res = await fetch("/api/me", { headers: { "Authorization": `Bearer ${token}` } });
-    if (!res.ok) throw new Error("Session expired");
-    const data = await res.json();
-    currentUser = data.user; authToken = token;
-    write(KEY.current, currentUser);
-    currentPlan = currentUser.plan || "free";
-    localStorage.setItem(KEY.plan, currentPlan);
-  } catch {
-    authToken = ""; currentUser = null; currentPlan = "free";
-    localStorage.removeItem("affiliShopAuthToken"); localStorage.removeItem(KEY.current); localStorage.removeItem(KEY.plan);
+    const res = await fetch(
+      "/api/me",
+      {
+        headers: {
+          "Authorization":
+            `Bearer ${token}`
+        }
+      }
+    );
+
+    const data =
+      await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.error ||
+        "Session expired."
+      );
+    }
+
+    authToken = token;
+
+    currentUser = data.user;
+
+    write(
+      KEY.current,
+      currentUser
+    );
+
+    currentPlan =
+      currentUser.plan ||
+      "free";
+
+    localStorage.setItem(
+      KEY.plan,
+      currentPlan
+    );
+
+  } catch (error) {
+    console.error(
+      "SESSION ERROR:",
+      error
+    );
+
+    authToken = "";
+    currentUser = null;
+    currentPlan = "free";
+
+    localStorage.removeItem(
+      "affiliShopAuthToken"
+    );
+
+    localStorage.removeItem(
+      KEY.current
+    );
+
+    localStorage.removeItem(
+      KEY.plan
+    );
   }
 }
 
 async function login() {
-  const identity = $("loginIdentity").value.trim().toLowerCase();
-  const password = $("loginPassword").value;
-  if (!identity || !password) return toast("Enter your email/phone and password.");
+  const identity =
+    $("loginIdentity")?.value.trim().toLowerCase() || "";
+
+  const password =
+    $("loginPassword")?.value || "";
+
+  if (!identity || !password) {
+    return toast("Enter your email and password.");
+  }
+
   try {
     const res = await fetch("/api/login", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: identity, password })
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        email: identity,
+        password
+      })
     });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Login failed.");
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.error ||
+        "Invalid email or password."
+      );
+    }
+
+    if (!data.token || !data.user) {
+      throw new Error(
+        "Server did not return a valid session."
+      );
+    }
+
     authToken = data.token;
-    localStorage.setItem("affiliShopAuthToken", authToken);
+
+    localStorage.setItem(
+      "affiliShopAuthToken",
+      authToken
+    );
+
     currentUser = data.user;
-    write(KEY.current, currentUser);
-    currentPlan = currentUser.plan || "free";
-    localStorage.setItem(KEY.plan, currentPlan);
-    updateAuth(); updateAccess(); closeModals(); toast("Login successful! 👋");
-  } catch {
-    // Fallback to local login
-    const list = read(KEY.users, []);
-    const user = list.find(u => (u.email?.toLowerCase() === identity || u.phone === identity) && u.password === password);
-    if (!user) return toast("Account not found or wrong password.");
-    currentUser = user; write(KEY.current, currentUser);
-    currentPlan = localStorage.getItem(KEY.plan) || "free";
-    updateAuth(); updateAccess(); closeModals(); toast("Login successful! 👋");
+
+    write(
+      KEY.current,
+      currentUser
+    );
+
+    currentPlan =
+      currentUser.plan || "free";
+
+    localStorage.setItem(
+      KEY.plan,
+      currentPlan
+    );
+
+    updateAuth();
+    updateAccess();
+    closeModals();
+
+    toast("Login successful! 👋");
+
+  } catch (error) {
+    console.error(
+      "LOGIN ERROR:",
+      error
+    );
+
+    toast(
+      error.message ||
+      "Login failed."
+    );
   }
 }
 
@@ -160,24 +266,85 @@ async function logout() {
   toast("Logged out.");
 }
 
-function signup() {
-  const name = $("signupName").value.trim();
-  const email = $("signupEmail").value.trim().toLowerCase();
-  const phone = $("signupPhone").value.trim();
-  const password = $("signupPassword").value;
-  const confirm = $("signupConfirm").value;
-  if (!name || !email || !phone || !password || !confirm) return toast("Complete all fields.");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return toast("Enter valid email.");
-  if (password.length < 6) return toast("Password at least 6 characters.");
-  if (password !== confirm) return toast("Passwords do not match.");
-  const list = read(KEY.users, []);
-  if (list.some(u => u.email?.toLowerCase() === email)) return toast("Email already registered.");
-  if (list.some(u => u.phone === phone)) return toast("Phone already registered.");
-  const newUser = { id: Date.now(), name, email, phone, password, createdAt: new Date().toISOString() };
-  list.push(newUser); write(KEY.users, list);
-  currentUser = newUser; write(KEY.current, currentUser);
-  currentPlan = "free"; localStorage.setItem(KEY.plan, "free");
-  updateAuth(); updateAccess(); closeModals(); toast("🎉 Account created!");
+async function signup() {
+  const name = $("signupName")?.value.trim() || "";
+  const email = $("signupEmail")?.value.trim().toLowerCase() || "";
+  const phone = $("signupPhone")?.value.trim() || "";
+  const password = $("signupPassword")?.value || "";
+  const confirm = $("signupConfirm")?.value || "";
+
+  if (!name || !email || !phone || !password || !confirm) {
+    return toast("Complete all fields.");
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return toast("Enter a valid email.");
+  }
+
+  if (password.length < 6) {
+    return toast("Password must be at least 6 characters.");
+  }
+
+  if (password !== confirm) {
+    return toast("Passwords do not match.");
+  }
+
+  try {
+    const res = await fetch("/api/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        password
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(data.error || "Registration failed.");
+    }
+
+    if (!data.token || !data.user) {
+      throw new Error("Server did not return a valid account session.");
+    }
+
+    authToken = data.token;
+
+    localStorage.setItem(
+      "affiliShopAuthToken",
+      authToken
+    );
+
+    currentUser = data.user;
+
+    write(KEY.current, currentUser);
+
+    currentPlan = currentUser.plan || "free";
+
+    localStorage.setItem(
+      KEY.plan,
+      currentPlan
+    );
+
+    updateAuth();
+    updateAccess();
+    closeModals();
+
+    toast("🎉 Account created successfully!");
+
+  } catch (error) {
+    console.error("SIGNUP ERROR:", error);
+
+    toast(
+      error.message ||
+      "Registration failed."
+    );
+  }
 }
 
 function openShopCreator() {
@@ -408,21 +575,141 @@ async function choosePlan(plan) {
 function openPlans() { openModal("plansModal"); }
 function resetStats() { if (confirm("Reset stats?")) { stats = { clicks:0, shared:0, commission:0 }; write(KEY.stats, stats); updateStats(); toast("Stats reset."); } }
 function startReset() { resetUserId = null; $("forgotIdentity").value = ""; $("newPassword").value = ""; $("confirmNewPassword").value = ""; $("resetStep2")?.classList.add("hidden"); openModal("forgotModal"); }
-function verifyReset() {
-  const identity = $("forgotIdentity").value.trim().toLowerCase();
-  const user = read(KEY.users, []).find(u => u.email?.toLowerCase() === identity || u.phone === identity);
-  if (!user) return toast("Account not found.");
-  resetUserId = user.id; $("resetStep2")?.classList.remove("hidden"); toast("Account found. Enter new password.");
+async function verifyReset() {
+  const identity =
+    $("forgotIdentity")?.value.trim().toLowerCase() || "";
+
+  if (!identity) {
+    return toast(
+      "Enter your email or phone."
+    );
+  }
+
+  try {
+    const res = await fetch(
+      "/api/reset-password/check",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contact: identity
+        })
+      }
+    );
+
+    const data =
+      await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.error ||
+        "Account not found."
+      );
+    }
+
+    resetUserId = identity;
+
+    $("resetStep2")?.classList.remove(
+      "hidden"
+    );
+
+    toast(
+      "Account found. Enter your new password."
+    );
+
+  } catch (error) {
+    console.error(
+      "VERIFY RESET ERROR:",
+      error
+    );
+
+    toast(
+      error.message ||
+      "Account not found."
+    );
+  }
 }
-function resetPassword() {
-  if (!resetUserId) return toast("Find account first.");
-  const pwd = $("newPassword").value;
-  if (pwd.length < 6) return toast("Min 6 characters.");
-  if (pwd !== $("confirmNewPassword").value) return toast("Not match.");
-  const list = read(KEY.users, []); const idx = list.findIndex(u => u.id === resetUserId);
-  if (idx < 0) return toast("Account not found.");
-  list[idx].password = pwd; write(KEY.users, list); resetUserId = null;
-  closeModals(); openModal("loginModal"); toast("Password updated. 🔐");
+async function resetPassword() {
+  if (!resetUserId) {
+    return toast(
+      "Enter your email or phone first."
+    );
+  }
+
+  const password =
+    $("newPassword")?.value || "";
+
+  const confirm =
+    $("confirmNewPassword")?.value || "";
+
+  if (password.length < 6) {
+    return toast(
+      "Password must be at least 6 characters."
+    );
+  }
+
+  if (password !== confirm) {
+    return toast(
+      "Passwords do not match."
+    );
+  }
+
+  try {
+    const res = await fetch(
+      "/api/reset-password",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contact: resetUserId,
+          newPassword: password
+        })
+      }
+    );
+
+    const data =
+      await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      throw new Error(
+        data.error ||
+        "Password reset failed."
+      );
+    }
+
+    resetUserId = null;
+
+    if ($("newPassword")) {
+      $("newPassword").value = "";
+    }
+
+    if ($("confirmNewPassword")) {
+      $("confirmNewPassword").value = "";
+    }
+
+    closeModals();
+
+    openModal("loginModal");
+
+    toast(
+      "Password changed successfully! 🔐"
+    );
+
+  } catch (error) {
+    console.error(
+      "RESET PASSWORD ERROR:",
+      error
+    );
+
+    toast(
+      error.message ||
+      "Password reset failed."
+    );
+  }
 }
 
 function renderProducts() {
